@@ -263,3 +263,8 @@ docker logs blazor5.0-app
 ```
 
 
+
+👨‍💻 WebAPI 6.0
+------------
+- New Proyect > ASP.NET Core Web API | .Net 6.0 | Default: HTTPS, Use Controllers, Enable OpenAPI
+- Program, Enable Swagger for Develop Mode

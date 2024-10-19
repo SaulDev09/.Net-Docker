@@ -260,6 +260,8 @@ docker create --name blazor5.0-app -p 6001:80 blazor5.0-app:1.0
 docker start blazor5.0-app
 docker container ls
 docker logs blazor5.0-app
+
+http://localhost:6001/
 ```
 
 
@@ -268,3 +270,65 @@ docker logs blazor5.0-app
 ------------
 - New Proyect > ASP.NET Core Web API | .Net 6.0 | Default: HTTPS, Use Controllers, Enable OpenAPI
 - Program, Enable Swagger for Develop Mode
+- Create Dockerfile: Web, right clic > Add > Docker Support > Linux, OK
+
+> [!IMPORTANT]
+> docker pull mcr.microsoft.com/dotnet/aspnet:6.0 <br />
+> docker pull mcr.microsoft.com/dotnet/sdk:6.0 <br />
+
+
+Dockerfile:
+```
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+WORKDIR /app
+EXPOSE 8080
+# Added manually
+ENV ASPNETCORE_URLS=http://*:8080
+# EXPOSE 80
+# EXPOSE 443
+
+
+# This stage is used to build the service project
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+COPY ["WebAPI/WebAPI.csproj", "WebAPI/"]
+RUN dotnet restore "./WebAPI/WebAPI.csproj"
+COPY . .
+WORKDIR "/src/WebAPI"
+RUN dotnet build "./WebAPI.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+# This stage is used to publish the service project to be copied to the final stage
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "./WebAPI.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+
+# Added manually
+RUN ln -fs /usr/share/zoneinfo/America/Lima /etc/localtime
+RUN dpkg-reconfigure --frontend noninteractive tzdata
+
+ENTRYPOINT ["dotnet", "WebAPI.dll"]
+```
+
+Commands
+```
+cd D:\.......\WebAPI
+docker build -t webapi6.0-app:2.0 -f .\WebApi\Dockerfile .
+docker image ls
+docker create --name webapi6.0-app -p 8080:8080 webapi6.0-app:2.0
+
+docker container ls
+docker start webapi6.0-app
+docker stop webapi6.0-app
+docker restart webapi6.0-app
+docker logs webapi6.0-app
+
+http://localhost:8080/swagger/index.html
+```
+
+

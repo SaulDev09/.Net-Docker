@@ -203,5 +203,63 @@ docker container prune // Remove all stopped containers
 docker image ls
 docker container run -d --name eshoponweb -p 9090:80 -e "ConnectionStrings:CatalogConnection=Server=192.168.0.44\SQLEXPRESS;User id=DESA;Password=123456;Initial Catalog=Microsoft.eShopOnWeb.CatalogDb" -e "ConnectionStrings:IdentityConnection=Server=192.168.0.44\SQLEXPRESS;User id=DESA;Password=123456;Initial Catalog=Microsoft.eShopOnWeb.Identity" IMAGE_ID
 ```
-⚠️ **Important**: `${Instead of \\ use only \}`
+
+> [!IMPORTANT]
+> `Instead of \\ use only \`
+
+
+👨‍💻 Blazor 5.0
+------------
+- New Proyect Blazor Server App | .Net 5.0 | No HTTPS
+- Web debug properties in "Green play button" Select "Web" to open console popup and run
+- Create Dockerfile: Web, right clic > Add > Docker Support > Linux, OK
+- "Green play button" Select "IIS Express" instead of "Docker"
+
+Dockerfile:
+```
+FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
+WORKDIR /app
+EXPOSE 80
+# ADDED MANUALLY:
+ENV ASPNETCORE_URLS=http://*:80
+
+# This stage is used to build the service project
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+COPY ["Web/Web.csproj", "Web/"]
+RUN dotnet restore "./Web/Web.csproj"
+COPY . .
+WORKDIR "/src/Web"
+RUN dotnet build "./Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+# This stage is used to publish the service project to be copied to the final stage
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "./Web.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+
+# ADDED MANUALLY:
+RUN ln -fs /usr/share/zoneinfo/America/Lima /etc/localtime
+RUN dpkg-reconfigure --frontend noninteractive tzdata
+
+ENTRYPOINT ["dotnet", "Web.dll"]
+```
+
+Commands
+```
+cd D:\.......\WebBlazor
+docker build -t blazor5.0-app:1:0 -f .\Web\Dockerfile .
+docker image ls
+
+docker create --name blazor5.0-app -p 6001:80 blazor5.0-app:1.0
+docker start blazor5.0-app
+docker container ls
+docker logs blazor5.0-app
+```
+
 

@@ -130,3 +130,78 @@ docker image ls
 docker container run -d -p 8001:80 IMAGE_ID
 ```
 http://localhost:8001/weatherforecast
+
+👨‍💻 eShopOnWeb
+------------
+https://github.com/dotnet-architecture/eShopOnWeb/tree/netcore3.0
+```
+cd D:\.......\eShopOnWeb\src\Web
+dotnet ef database update -c catalogcontext -p ../Infrastructure/Infrastructure.csproj -s Web.csproj
+dotnet ef database update -c appIdentitydbcontext -p ../Infrastructure/Infrastructure.csproj -s Web.csproj
+```
+
+Dockerfile:
+```
+FROM mcr.microsoft.com/dotnet/core/sdk:3.0 AS build
+WORKDIR /app
+
+COPY *.sln .
+COPY . .
+WORKDIR /app/src/Web
+RUN dotnet restore
+
+RUN dotnet publish -c Release -o out
+
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.0 AS runtime
+WORKDIR /app
+COPY --from=build /app/src/Web/out ./
+
+# Optional: Set this here if not setting it from docker-compose.yml
+# ENV ASPNETCORE_ENVIRONMENT Development
+
+ENTRYPOINT ["dotnet", "Web.dll"]
+```
+
+Creating container
+```
+cd D:\.......\eShopOnWeb
+
+docker image ls
+docker image build -t eshoponweb:1.0.0 -f .\src\Web\Dockerfile .
+docker image ls // there is eshoponweb
+docker container ls
+docker container run -d --name eshoponweb -p 8060:80 IMAGE_ID
+docker container ls // there is eshoponweb
+http://localhost:8060/
+```
+
+Re-Creating if code changes
+```
+docker container ls
+docker stop CONTAINER_ID
+docker rm CONTAINER_ID
+docker image build -t eshoponweb:2.0.0 -f .\src\Web\Dockerfile .
+docker image ls
+docker container run -d --name eshoponweb -p 8060:80 IMAGE_ID
+http://localhost:8060/
+```
+
+
+Environment variables
+```
+cd D:\.......\eShopOnWeb\src\Web
+docker image build -t eshoponweb:3.0.0 -f .\src\Web\Dockerfile .
+docker image ls
+docker container run -d --name eshoponweb -p 9090:80 IMAGE_ID
+http://localhost:9090/ // Error
+
+docker container ls
+docker logs CONTAINER_ID
+docker stop CONTAINER_ID
+docker rm -f CONTAINER_ID
+docker container prune // Remove all stopped containers
+docker image ls
+docker container run -d --name eshoponweb -p 9090:80 -e "ConnectionStrings:CatalogConnection=Server=192.168.0.44\SQLEXPRESS;User id=DESA;Password=123456;Initial Catalog=Microsoft.eShopOnWeb.CatalogDb" -e "ConnectionStrings:IdentityConnection=Server=192.168.0.44\SQLEXPRESS;User id=DESA;Password=123456;Initial Catalog=Microsoft.eShopOnWeb.Identity" IMAGE_ID
+```
+⚠️ **Important**: `${Instead of \\ use only \}`
+

@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
+using Microsoft.AspNetCore.Identity.UI;
 
 namespace Microsoft.eShopWeb.Web
 {
@@ -39,10 +40,10 @@ namespace Microsoft.eShopWeb.Web
         public void ConfigureDevelopmentServices(IServiceCollection services)
         {
             // use in-memory database
-            ConfigureInMemoryDatabases(services);
+            //ConfigureInMemoryDatabases(services);
 
             // use real database
-            //ConfigureProductionServices(services);
+            ConfigureProductionServices(services);
         }
 
         private void ConfigureInMemoryDatabases(IServiceCollection services)
@@ -143,7 +144,7 @@ namespace Microsoft.eShopWeb.Web
                     .GetService<UserManager<ApplicationUser>>();
                 if(existingUserManager == null)
                 {
-                    services.AddIdentity<ApplicationUser, IdentityRole>()
+                    _ = services.AddIdentity<ApplicationUser, IdentityRole>()
                         .AddDefaultUI()
                         .AddEntityFrameworkStores<AppIdentityDbContext>()
                                         .AddDefaultTokenProviders();

@@ -332,3 +332,9 @@ http://localhost:8080/swagger/index.html
 ```
 
 
+👨‍💻 WeatherAPI 7.0
+------------
+- New Proyect > ASP.NET Core Web API | .Net 7.0 | Default: HTTPS, Use Controllers, Enable OpenAPI
+- "Green play button" Select "http"
+
+

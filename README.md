@@ -336,5 +336,49 @@ http://localhost:8080/swagger/index.html
 ------------
 - New Proyect > ASP.NET Core Web API | .Net 7.0 | Default: HTTPS, Use Controllers, Enable OpenAPI
 - "Green play button" Select "http"
+- Create Dockerfile: Web, right clic > Add > Docker Support > Linux, OK
 
+> [!IMPORTANT]
+> V1 <br />
+> docker pull mcr.microsoft.com/dotnet/aspnet:7.0 <br />
+> docker pull mcr.microsoft.com/dotnet/sdk:7.0 <br />
 
+Dockerfile v1:
+```
+FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
+WORKDIR /app
+EXPOSE 80
+# Added manually
+# EXPOSE 443
+ENV ASPNETCORE_URLS=http://+:80
+
+# This stage is used to build the service project
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+COPY ["WeatherAPI/WeatherAPI.csproj", "WeatherAPI/"]
+RUN dotnet restore "./WeatherAPI/WeatherAPI.csproj"
+COPY . .
+WORKDIR "/src/WeatherAPI"
+RUN dotnet build "./WeatherAPI.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+# This stage is used to publish the service project to be copied to the final stage
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "./WeatherAPI.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "WeatherAPI.dll"]
+```
+
+Commands
+```
+cd D:\.......\WeatherAPI
+docker image build -t webapi7.0-app:1.0 -f .\WeatherAPI\Dockerfile .
+docker image ls
+// Vulnerabilities
+docker scan webapi7.0-app:1.0 // Scan command has been removed, open Docker Desktop > Images > Clic name 
+```

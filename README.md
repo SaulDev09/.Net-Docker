@@ -447,3 +447,64 @@ http://localhost:8080/swagger/index.html
 X http://localhost:8081/swagger/index.html // Swagger only for Development
 http://localhost:8081/WeatherForecast
 ```
+
+👨‍💻 7 - BookStore 8.0
+------------
+- 
+
+> [!IMPORTANT]
+> V1 <br />
+> docker pull mcr.microsoft.com/dotnet/aspnet:8.0 <br />
+> docker pull mcr.microsoft.com/dotnet/sdk:8.0 <br />
+
+Dockerfile:
+```
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+USER app
+WORKDIR /app
+EXPOSE 8080
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+COPY ["src/BookStore.WebApi/BookStore.WebApi.csproj", "src/BookStore.WebApi/"]
+COPY ["src/BookStore.Domain/BookStore.Domain.csproj", "src/BookStore.Domain/"]
+COPY ["src/BookStore.Infrastructure/BookStore.Infrastructure.csproj", "src/BookStore.Infrastructure/"]
+RUN dotnet restore "./src/BookStore.WebApi/./BookStore.WebApi.csproj"
+COPY . .
+WORKDIR "/src/src/BookStore.WebApi"
+RUN dotnet build "./BookStore.WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "./BookStore.WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "BookStore.WebApi.dll"]
+```
+
+Commands
+```
+cd D:\.......\WeatherAPI
+docker build -t book-store:net8 -f .\src\BookStore.WebApi\Dockerfile .
+docker image ls
+docker container create --name book-store -p 8082:8080 -e ASPNETCORE_ENVIRONMENT=Development book-store:net8
+docker start book-store
+docker container ls or docker ps
+http://localhost:8082/swagger/index.html
+```
+
+Adding Environment variables
+```
+docker container rm -f book-store
+docker container create --name book-store -p 8082:80 -e ASPNETCORE_ENVIRONMENT=Development -e ASPNETCORE_HTTP_PORTS=80 -e ConnectionStrings__DbConnection="Server=192.168.0.44\SQLEXPRESS;Database=BookStore;User id=DESA;Password=123456;TrustServerCertificate=True;" book-store:net8
+// Double "_": ConnectionStrings "_ _" DbConnection
+docker start book-store
+docker logs book-store
+http://localhost:8082/swagger/index.html
+```
+
+> [!IMPORTANT]
+> `ConnectionStrings Instead of \\ use only \`

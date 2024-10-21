@@ -487,7 +487,7 @@ ENTRYPOINT ["dotnet", "BookStore.WebApi.dll"]
 
 Commands
 ```
-cd D:\.......\WeatherAPI
+cd D:\.......\BookStore
 docker build -t book-store:net8 -f .\src\BookStore.WebApi\Dockerfile .
 docker image ls
 docker container create --name book-store -p 8082:8080 -e ASPNETCORE_ENVIRONMENT=Development book-store:net8
@@ -508,3 +508,55 @@ http://localhost:8082/swagger/index.html
 
 > [!IMPORTANT]
 > `ConnectionStrings Instead of \\ use only \`
+
+👨‍💻 8 - Docker Compose
+------------
+
+Commands
+```
+cd D:\.......\BookStore
+docker compose up -d --build
+http://localhost:5001/swagger/index.html
+
+docker-compose down
+docker-compose up --build
+```
+
+docker-compose.yml
+```
+version: '3.8'
+
+networks:
+  backend:
+    name: bookstore-network
+
+services:
+  mssql:
+    build: 
+      context: ./scripts/sql
+    container_name: bookstore-db
+    ports:
+      - "1433:1433"  
+    environment:
+      SA_PASSWORD: "P@ssw0rd?"
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Express"
+      MSSQL_CLIENT_ENCRYPTION: "Optional" #
+    networks:
+      - backend
+
+  api:
+    build:
+      context: ./
+      dockerfile: ./src/BookStore.WebApi/Dockerfile
+    container_name: bookstore-webapi
+    depends_on:
+      - mssql
+    ports:
+      - 5001:80
+    environment:
+      ConnectionStrings__DbConnection: Server=mssql;Database=BookStore;User Id=SA;Password=P@ssw0rd?;Encrypt=False;trustServerCertificate=true;
+      ASPNETCORE_ENVIRONMENT: "Development"
+    networks:
+      - backend
+```

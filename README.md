@@ -80,7 +80,7 @@ ENTRYPOINT <br/>
 WORKDIR <br/>
 
 
-👨‍💻 .Net 3.0, ASP.NET - Web
+👨‍💻 01. .Net 3.0, ASP.NET - Web (feature/Net3)
 ------------
 
 
@@ -95,26 +95,30 @@ FROM mcr.microsoft.com/dotnet/core/sdk:3.0 AS build-env
 WORKDIR /src
 
 COPY . .
-WORKDIR /src/SaulWebNet3
+WORKDIR /src/01-WebNet3
 RUN dotnet restore
 
 RUN dotnet publish -c Release -o out
 
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.0
 WORKDIR /app
-COPY --from=build-env /src/SaulWebNet3/out ./
+COPY --from=build-env /src/01-WebNet3/out ./
 ENTRYPOINT ["dotnet", "SaulWebNet3.dll"]
 ```
 
 ```
-docker image build -t saulwebnet3:1.0.0 -f "SaulWebNet3\Dockerfile" .
-docker image build -t saulwebnet3:2.0.0 -f "SaulWebNet3\Dockerfile" .
+docker image build -t 01saulwebnet3:1.0.0 -f "01-WebNet3\Dockerfile" .
+docker image build -t 01saulwebnet3:2.0.0 -f "01-WebNet3\Dockerfile" .
+docker image build --no-cache -t 01saulwebnet3:6.0.0 -f "01-WebNet3\Dockerfile" .
+
 docker image ls
 ```
 
 ```
 docker container run -d -p 8080:80 IMAGE_ID
 docker container run -d -p 8090:80 IMAGE_ID
+docker container run -d -p 8080:80 NAME
+docker container run -d -p 8080:80 01saulwebnet3:6.0.0
 ```
 http://localhost:8080/
 http://localhost:8090/

@@ -123,15 +123,39 @@ docker container run -d -p 8080:80 01saulwebnet3:6.0.0
 http://localhost:8080/
 http://localhost:8090/
 
-👨‍💻 .Net 3.0, ASP.NET - Web API
+👨‍💻 02. .Net 3.0, ASP.NET - Web API (feature/02-Net3-Api)
 ------------
+
+> [!IMPORTANT]
+> docker pull mcr.microsoft.com/dotnet/core/sdk:3.0 <br />
+> docker pull mcr.microsoft.com/dotnet/core/aspnet:3.0 <br />
+> docker pull mcr.microsoft.com/dotnet/core/runtime:3.0 <br />
+
 ```
-docker image build -t saulwebapinet3:1.0.0 -f "SaulWebApiNet3\Dockerfile" .
+FROM mcr.microsoft.com/dotnet/core/sdk:3.0 AS build-env
+WORKDIR /src
+
+COPY . .
+WORKDIR /src/02-WebApiNet3
+RUN dotnet restore
+
+RUN dotnet publish -c Release -o out
+
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.0
+WORKDIR /app
+COPY --from=build-env /src/02-WebApiNet3/out ./
+ENTRYPOINT ["dotnet", "SaulWebApiNet3.dll"]
+```
+
+```
+docker image build -t 02saulwebapinet3:1.0.0 -f "02-WebApiNet3\Dockerfile" .
 docker image ls
 ```
 
 ```
 docker container run -d -p 8001:80 IMAGE_ID
+docker container run -d -p 8001:80 NAME
+docker container run -d -p 8080:80 02saulwebapinet3:1.0.0
 ```
 http://localhost:8001/weatherforecast
 

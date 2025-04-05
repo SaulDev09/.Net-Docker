@@ -5,7 +5,7 @@ VisualStudioVersion = 17.11.35208.52
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SaulWebNet3", "01-WebNet3\SaulWebNet3.csproj", "{7ABEED8C-5842-429C-A843-6781F724DFF7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaulWebApiNet3", "SaulWebApiNet3\SaulWebApiNet3.csproj", "{2A214162-7E9A-40D7-B98F-EC82CA8053A7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaulWebApiNet3", "02-WebApiNet3\SaulWebApiNet3.csproj", "{2A214162-7E9A-40D7-B98F-EC82CA8053A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -322,14 +322,30 @@ docker container run -d --name 03eshoponweb -p 9090:80 -e "Logging:LogLevel:Defa
 > `In the ConnectionStrings: Instead of \\ use only \`
 
 
-👨‍💻 Blazor 5.0
+👨‍💻 04. Blazor 5.0 (feature/04-Blazor5.0)
 ------------
-- New Proyect Blazor Server App | .Net 5.0 | No HTTPS
-- Web debug properties in "Green play button" Select "Web" to open console popup and run
+- New Proyect:
+Blazor Server App   
+.Net 5.0   
+No HTTPS   
+
+- In "Green play button" Select "Web" (project name) to open console popup and run
 - Create Dockerfile: Web, right clic > Add > Docker Support > Linux, OK
 - "Green play button" Select "IIS Express" instead of "Docker"
 
-Dockerfile:
+> [!IMPORTANT]
+> In Dockerfile:
+
+```
+# ADDED MANUALLY:
+ENV ASPNETCORE_URLS=http://*:80
+
+# ADDED MANUALLY:
+RUN ln -fs /usr/share/zoneinfo/America/Lima /etc/localtime
+RUN dpkg-reconfigure --frontend noninteractive tzdata
+```
+
+Like this:
 ```
 FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
 WORKDIR /app
@@ -364,19 +380,17 @@ RUN dpkg-reconfigure --frontend noninteractive tzdata
 ENTRYPOINT ["dotnet", "Web.dll"]
 ```
 
-Commands
+Go to solution folder: `cd D:\...\04-Blazor5.0\WebBlazor`
 ```
-cd D:\.......\WebBlazor
-docker build -t blazor5.0-app:1:0 -f .\Web\Dockerfile .
+docker build -t 04blazor5.0-app:1.0.0 -f .\Web\Dockerfile .
 docker image ls
 
-docker create --name blazor5.0-app -p 6001:80 blazor5.0-app:1.0
-docker start blazor5.0-app
+docker create --name 04blazor5.0-app -p 6001:80 04blazor5.0-app:1.0.0
+docker start 04blazor5.0-app
 docker container ls
-docker logs blazor5.0-app
-
-http://localhost:6001/
+docker logs 04blazor5.0-app
 ```
+http://localhost:6001/
 
 
 

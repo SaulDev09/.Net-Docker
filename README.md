@@ -159,16 +159,101 @@ docker container run -d -p 8080:80 02saulwebapinet3:1.0.0
 ```
 http://localhost:8001/weatherforecast
 
-👨‍💻 eShopOnWeb
+
+👨‍💻 03. eShopOnWeb (feature/03-eShop)
 ------------
-https://github.com/dotnet-architecture/eShopOnWeb/tree/netcore3.0
+
+### From Scratch:
+Project URL https://github.com/dotnet-architecture/eShopOnWeb/tree/netcore3.0
+
 ```
-cd D:\.......\eShopOnWeb\src\Web
+git clone https://github.com/dotnet-architecture/eShopOnWeb.git
+git checkout netcore3.0
+```
+
+Go to libman.json
+
+<table>
+  <tr>
+    <th colspan="2">Before</th>
+    <th colspan="2">After</th>
+  </tr>
+  <tr>
+    <td>provider</td>
+    <td>library</td>
+    <td>provider</td>
+    <td>library</td>    
+  </tr>
+  <tr>
+    <td></td>
+    <td>jquery@3.3.1</td>
+    <td></td>
+    <td>jquery@3.7.1</td>
+  </tr>
+  <tr>
+    <td>unpkg</td>
+    <td>In bootstrap@3.3.7</td>
+    <td>jsdelivr</td>
+    <td></td>    
+  </tr>
+  <tr>
+    <td></td>
+    <td>jquery-validation-unobtrusive@3.2.10</td>
+    <td></td>
+    <td>jquery-validation-unobtrusive@4.0.0</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>jquery-validate@1.17.0</td>
+    <td></td>
+    <td>jquery-validate@1.21.0</td>
+  </tr>
+  <tr>
+    <td>unpkg</td>
+    <td>In @aspnet/signalr@1.0.3</td>
+    <td>jsdelivr</td>
+    <td></td>    
+  </tr>  
+</table>
+
+> [!NOTE]
+> To use a real database instead of in-memory database:
+
+Go to `D:\...\03-eShopOnWeb-netcore3.0\src\Web\Startup.cs`
+```
+Comment ConfigureInMemoryDatabases(services);
+Uncomment ConfigureProductionServices(services);
+```
+
+> [!CAUTION]
+> To fix Cookies issue:
+
+Go to ConfigureCookieSettings and update:
+
+```
+services.Configure<CookiePolicyOptions>(options =>
+{
+    options.MinimumSameSitePolicy = SameSiteMode.Lax;
+    options.Secure = CookieSecurePolicy.Always;
+    options.HttpOnly = AspNetCore.CookiePolicy.HttpOnlyPolicy.Always;
+    options.CheckConsentNeeded = context => true;
+});
+```
+
+
+Go to `D:\...\03-eShopOnWeb-netcore3.0\src\Web\appsettings.json`
+
+Change ConnectionStrings values
+
+
+Go to `D:\...\03-eShopOnWeb-netcore3.0\src\Web`
+
+```
 dotnet ef database update -c catalogcontext -p ../Infrastructure/Infrastructure.csproj -s Web.csproj
 dotnet ef database update -c appIdentitydbcontext -p ../Infrastructure/Infrastructure.csproj -s Web.csproj
 ```
 
-Dockerfile:
+Existing Dockerfile:
 ```
 FROM mcr.microsoft.com/dotnet/core/sdk:3.0 AS build
 WORKDIR /app
@@ -184,22 +269,22 @@ FROM mcr.microsoft.com/dotnet/core/aspnet:3.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/src/Web/out ./
 
-# Optional: Set this here if not setting it from docker-compose.yml
-# ENV ASPNETCORE_ENVIRONMENT Development
-
 ENTRYPOINT ["dotnet", "Web.dll"]
 ```
 
-Creating container
-```
-cd D:\.......\eShopOnWeb
+**Creating container**
 
+Go to solution folder: cd `D:\...\03-eShopOnWeb-netcore3.0`
+
+```
 docker image ls
-docker image build -t eshoponweb:1.0.0 -f .\src\Web\Dockerfile .
-docker image ls // there is eshoponweb
+docker image build -t 03eshoponweb:25.0.0 -f .\src\Web\Dockerfile .
+docker image ls // there is 03eshoponweb
 docker container ls
-docker container run -d --name eshoponweb -p 8060:80 IMAGE_ID
-docker container ls // there is eshoponweb
+docker container run -d --name 03eshoponweb -p 8060:80 IMAGE_ID
+docker container run -d --name 03eshoponweb -p 8060:80 NAME
+docker container run -d --name 03eshoponwebv25 -p 8061:80 03eshoponweb:25.0.0
+docker container ls // there is 03eshoponweb
 http://localhost:8060/
 ```
 
@@ -208,19 +293,19 @@ Re-Creating if code changes
 docker container ls
 docker stop CONTAINER_ID
 docker rm CONTAINER_ID
-docker image build -t eshoponweb:2.0.0 -f .\src\Web\Dockerfile .
+docker image build -t 03eshoponweb:2.0.0 -f .\src\Web\Dockerfile .
 docker image ls
-docker container run -d --name eshoponweb -p 8060:80 IMAGE_ID
+docker container run -d --name 03eshoponweb -p 8060:80 IMAGE_ID
 http://localhost:8060/
 ```
 
 
-Environment variables
+**Environment variables**
+Go to solution folder: cd `D:\...\03-eShopOnWeb-netcore3.0`
 ```
-cd D:\.......\eShopOnWeb\src\Web
-docker image build -t eshoponweb:3.0.0 -f .\src\Web\Dockerfile .
+docker image build -t 03eshoponweb:3.0.0 -f .\src\Web\Dockerfile .
 docker image ls
-docker container run -d --name eshoponweb -p 9090:80 IMAGE_ID
+docker container run -d --name 03eshoponweb -p 9090:80 IMAGE_ID
 http://localhost:9090/ // Error
 
 docker container ls
@@ -229,11 +314,12 @@ docker stop CONTAINER_ID
 docker rm -f CONTAINER_ID
 docker container prune // Remove all stopped containers
 docker image ls
-docker container run -d --name eshoponweb -p 9090:80 -e "ConnectionStrings:CatalogConnection=Server=192.168.0.44\SQLEXPRESS;User id=DESA;Password=123456;Initial Catalog=Microsoft.eShopOnWeb.CatalogDb" -e "ConnectionStrings:IdentityConnection=Server=192.168.0.44\SQLEXPRESS;User id=DESA;Password=123456;Initial Catalog=Microsoft.eShopOnWeb.Identity" IMAGE_ID
+docker container run -d --name 03eshoponweb -p 9090:80 -e "ConnectionStrings:CatalogConnection=Server=192.168.0.44\SQLEXPRESS;User id=DESA;Password=123456;Initial Catalog=Microsoft.eShopOnWeb.CatalogDb" -e "ConnectionStrings:IdentityConnection=Server=192.168.0.44\SQLEXPRESS;User id=DESA;Password=123456;Initial Catalog=Microsoft.eShopOnWeb.Identity" IMAGE_ID
+docker container run -d --name 03eshoponweb -p 9090:80 -e "Logging:LogLevel:Default=..." IMAGE_ID
 ```
 
 > [!IMPORTANT]
-> `Instead of \\ use only \`
+> `In the ConnectionStrings: Instead of \\ use only \`
 
 
 👨‍💻 Blazor 5.0

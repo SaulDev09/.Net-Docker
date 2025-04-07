@@ -24,6 +24,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
 using Microsoft.AspNetCore.Identity.UI;
+using Microsoft.AspNetCore.DataProtection;
+using System.IO;
 
 namespace Microsoft.eShopWeb.Web
 {
@@ -156,10 +158,12 @@ namespace Microsoft.eShopWeb.Web
         {
             services.Configure<CookiePolicyOptions>(options =>
             {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
+                options.MinimumSameSitePolicy = SameSiteMode.Lax; // More secure than None
+                options.Secure = CookieSecurePolicy.Always;       // Enforces HTTPS
+                options.HttpOnly = AspNetCore.CookiePolicy.HttpOnlyPolicy.Always;         // Prevents XSS
+                options.CheckConsentNeeded = context => true;     // Keeps your GDPR setting
             });
+
             services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.HttpOnly = true;

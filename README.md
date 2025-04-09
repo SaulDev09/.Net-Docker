@@ -393,24 +393,58 @@ docker logs 04blazor5.0-app
 http://localhost:6001/
 
 
-
-👨‍💻 WebAPI 6.0
+👨‍💻 05. WebAPI 6.0 (feature/05-API6.0)
 ------------
-- New Proyect > ASP.NET Core Web API | .Net 6.0 | Default: HTTPS, Use Controllers, Enable OpenAPI
-- Program, Enable Swagger for Develop Mode
-- Create Dockerfile: Web, right clic > Add > Docker Support > Linux, OK
 
 > [!IMPORTANT]
 > docker pull mcr.microsoft.com/dotnet/aspnet:6.0 <br />
 > docker pull mcr.microsoft.com/dotnet/sdk:6.0 <br />
 
+- New Proyect:   
+ASP.NET Core Web API   
+.Net 6.0   
+Default: HTTPS, Enable OpenAPI, Use Controllers
 
-Dockerfile:
+Go to `Program.cs` and Enable Swagger for Develop Mode
+
+Comment
+
+```
+if (app.Environment.IsDevelopment()) {
+  ...
+}
+```
+
+Create Dockerfile: Web, right clic > Add > Docker Support... > Linux, OK
+
+> [!IMPORTANT]
+> In Dockerfile:
+
+Change Ports
+
+```
+# Added manually
+EXPOSE 8080
+ENV ASPNETCORE_URLS=http://*:8080
+
+# Comment
+# EXPOSE 80
+# EXPOSE 443
+```
+
+Set localtime, important for Numbers, Currency, Timezone
+```
+# ADDED MANUALLY:
+RUN ln -fs /usr/share/zoneinfo/America/Lima /etc/localtime
+RUN dpkg-reconfigure --frontend noninteractive tzdata
+```
+
+Like this:
 ```
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
-EXPOSE 8080
 # Added manually
+EXPOSE 8080
 ENV ASPNETCORE_URLS=http://*:8080
 # EXPOSE 80
 # EXPOSE 443
@@ -443,21 +477,19 @@ RUN dpkg-reconfigure --frontend noninteractive tzdata
 ENTRYPOINT ["dotnet", "WebAPI.dll"]
 ```
 
-Commands
+Go to solution folder: `cd D:\...\05-API6.0\WebAPI`
 ```
-cd D:\.......\WebAPI
-docker build -t webapi6.0-app:2.0 -f .\WebApi\Dockerfile .
+docker build -t 05webapi6.0-app:1.0 -f .\WebApi\Dockerfile .
 docker image ls
-docker create --name webapi6.0-app -p 8080:8080 webapi6.0-app:2.0
+docker create --name 05webapi6.0-app -p 8080:8080 05webapi6.0-app:1.0
 
 docker container ls
-docker start webapi6.0-app
-docker stop webapi6.0-app
-docker restart webapi6.0-app
-docker logs webapi6.0-app
-
-http://localhost:8080/swagger/index.html
+docker start 05webapi6.0-app
+docker stop 05webapi6.0-app
+docker restart 05webapi6.0-app
+docker logs 05webapi6.0-app
 ```
+http://localhost:8080/swagger/index.html
 
 
 👨‍💻 WeatherAPI 7.0

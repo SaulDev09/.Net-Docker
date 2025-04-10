@@ -400,7 +400,7 @@ http://localhost:6001/
 > docker pull mcr.microsoft.com/dotnet/aspnet:6.0 <br />
 > docker pull mcr.microsoft.com/dotnet/sdk:6.0 <br />
 
-- New Proyect:   
+- New Proyect:
 ASP.NET Core Web API   
 .Net 6.0   
 Default: HTTPS, Enable OpenAPI, Use Controllers
@@ -492,12 +492,8 @@ docker logs 05webapi6.0-app
 http://localhost:8080/swagger/index.html
 
 
-👨‍💻 WeatherAPI 7.0
+👨‍💻 06. WeatherAPI 7.0 (feature/06-API7.0)
 ------------
-- New Proyect > ASP.NET Core Web API | .Net 7.0 | Default: HTTPS, Use Controllers, Enable OpenAPI
-- "Green play button" Select "http"
-- Create Dockerfile: Web, right clic > Add > Docker Support > Linux, OK
-
 > [!IMPORTANT]
 > V1 <br />
 > docker pull mcr.microsoft.com/dotnet/aspnet:7.0 <br />
@@ -507,16 +503,38 @@ http://localhost:8080/swagger/index.html
 > docker pull mcr.microsoft.com/dotnet/aspnet:7.0-alpine <br />
 > docker pull mcr.microsoft.com/dotnet/sdk:7.0-alpine <br />
 
-Dockerfile v1:
+
+- New Proyect:
+ASP.NET Core Web API   
+.Net 7.0   
+Default: HTTPS, Enable OpenAPI, Use Controllers
+
+- "Green play button" Select "http"
+- Create Dockerfile: Web, right clic > Add > Docker Support > Linux, OK
+
+> [!IMPORTANT]
+> In Dockerfile:
+
+Change Ports
+
+```
+# Added manually
+ENV ASPNETCORE_URLS=http://*:80
+
+# Comment
+# EXPOSE 443
+```
+
+Like this v1:
 ```
 FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 WORKDIR /app
 EXPOSE 80
 # Added manually
-# EXPOSE 443
-ENV ASPNETCORE_URLS=http://+:80
+ENV ASPNETCORE_URLS=http://*:80
+# Comment
+#EXPOSE 443
 
-# This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
@@ -526,46 +544,56 @@ COPY . .
 WORKDIR "/src/WeatherAPI"
 RUN dotnet build "./WeatherAPI.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./WeatherAPI.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
-# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "WeatherAPI.dll"]
 ```
 
-Commands
+Go to solution folder: `cd D:\...\06-API7.0\WeatherAPI`
 ```
-cd D:\.......\WeatherAPI
-docker image build -t webapi7.0-app:1.0 -f .\WeatherAPI\Dockerfile .
+docker image build -t 06webapi7.0-app:1.0 -f .\WeatherAPI\Dockerfile .
 docker image ls
 // Vulnerabilities
-docker scan webapi7.0-app:1.0 // Scan command has been removed, open Docker Desktop > Images > Clic name 
+docker scan 06webapi7.0-app:1.0 // Scan command has been removed, open Docker Desktop > Images > Clic name 
+docker scout cves IMAGE_ID
+docker scout cves NAME
 ```
 
+> [!IMPORTANT]
+> To fix the Vulnerabilities use alpine version:
 
-Dockerfile v2:
 ```
-# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
-# This stage is used when running from VS in fast mode (Default for Debug configuration)
 # V1
 # FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 # V2
 FROM mcr.microsoft.com/dotnet/aspnet:7.0-alpine AS base
 
+...
+
+# V1
+# FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+# V2
+FROM mcr.microsoft.com/dotnet/sdk:7.0-alpine AS build
+```
+
+
+
+Dockerfile v2:
+```
+# V2
+FROM mcr.microsoft.com/dotnet/aspnet:7.0-alpine AS base
 WORKDIR /app
 EXPOSE 80
 # Added manually
 # EXPOSE 443
 ENV ASPNETCORE_URLS=http://+:80
 
-
-# This stage is used to build the service project
+# v2
 FROM mcr.microsoft.com/dotnet/sdk:7.0-alpine AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
@@ -575,33 +603,34 @@ COPY . .
 WORKDIR "/src/WeatherAPI"
 RUN dotnet build "./WeatherAPI.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./WeatherAPI.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
-# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "WeatherAPI.dll"]
 ```
 
-Commands
+Go to solution folder: `cd D:\...\06-API7.0\WeatherAPI`
 ```
-cd D:\.......\WeatherAPI
-docker image build -t webapi7.0-app:2.0 -f .\WeatherAPI\Dockerfile .
+docker image build -t 06webapi7.0-app:2.0 -f .\WeatherAPI\Dockerfile .
 docker image ls
 // Vulnerabilities
-docker scan webapi7.0-app:2.0 // Scan command has been removed, open Docker Desktop > Images > Clic name 
+docker scan 06webapi7.0-app:2.0 // Scan command has been removed, open Docker Desktop > Images > Clic name 
+docker scout cves IMAGE_ID
+docker scout cves NAME
 ```
 
-Creating Containers: dev and prod
+**Creating Containers: dev and prod**
+
+Go to solution folder: `cd D:\...\06-API7.0\WeatherAPI`
 ```
-docker container create --name webapi7.0-dev -p 8080:80 -e ASPNETCORE_ENVIRONMENT=Development webapi7.0-app:2.0
-docker container create --name webapi7.0-prod -p 8081:80 -e ASPNETCORE_ENVIRONMENT=Production webapi7.0-app:2.0
-docker start webapi7.0-dev
-docker start webapi7.0-prod
+docker container create --name 06webapi7.0-dev -p 8080:80 -e ASPNETCORE_ENVIRONMENT=Development 06webapi7.0-app:2.0
+docker container create --name 06webapi7.0-prod -p 8081:80 -e ASPNETCORE_ENVIRONMENT=Production 06webapi7.0-app:2.0
+docker start 06webapi7.0-dev
+docker start 06webapi7.0-prod
 
 http://localhost:8080/swagger/index.html
 X http://localhost:8081/swagger/index.html // Swagger only for Development

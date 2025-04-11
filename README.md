@@ -728,16 +728,15 @@ docker-compose down
 docker-compose up --build
 ```
 
-
-
-
-👨‍💻 7 - BookStore 8.0
+👨‍💻 08. BookStore 8.0 (feature/108-BookStore8.0)
 ------------
 
 > [!IMPORTANT]
-> V1 <br />
 > docker pull mcr.microsoft.com/dotnet/aspnet:8.0 <br />
 > docker pull mcr.microsoft.com/dotnet/sdk:8.0 <br />
+
+- Open BookStore project
+- Create Dockerfile: Web, right clic > Add > Docker Support > Linux, OK
 
 Dockerfile:
 ```
@@ -767,29 +766,50 @@ COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "BookStore.WebApi.dll"]
 ```
 
-Commands
+> [!IMPORTANT]
+> Run the Database image in the previous step or use the local database engine
+
+Go to solution folder: `cd D:\...\08-BookStore`
+
 ```
-cd D:\.......\BookStore
 docker build -t book-store:net8 -f .\src\BookStore.WebApi\Dockerfile .
 docker image ls
 docker container create --name book-store -p 8082:8080 -e ASPNETCORE_ENVIRONMENT=Development book-store:net8
+docker container start book-store
 docker start book-store
 docker container ls or docker ps
-http://localhost:8082/swagger/index.html
+docker inspect book-store
 ```
 
-Adding Environment variables
+http://localhost:8082/swagger/index.html
+
+**Adding Environment variables**
+
+Changing Port, 80 instead of 8080
+```
+8082:80
+-e ASPNETCORE_HTTP_PORTS=80
+
+```
+
+Changing Connection String
+```
+-e ConnectionStrings__DbConnection="Server=192.168.0.44\SQLEXPRESS;Database=BookStore;User id=DESA;Password=123456;TrustServerCertificate=True;" 
+```
+
 ```
 docker container rm -f book-store
 docker container create --name book-store -p 8082:80 -e ASPNETCORE_ENVIRONMENT=Development -e ASPNETCORE_HTTP_PORTS=80 -e ConnectionStrings__DbConnection="Server=192.168.0.44\SQLEXPRESS;Database=BookStore;User id=DESA;Password=123456;TrustServerCertificate=True;" book-store:net8
 // Double "_": ConnectionStrings "_ _" DbConnection
 docker start book-store
 docker logs book-store
-http://localhost:8082/swagger/index.html
 ```
+
+http://localhost:8082/swagger/index.html
 
 > [!IMPORTANT]
 > `ConnectionStrings Instead of \\ use only \`
+
 
 👨‍💻 8 - Docker Compose
 ------------

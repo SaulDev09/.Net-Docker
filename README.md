@@ -637,9 +637,102 @@ X http://localhost:8081/swagger/index.html // Swagger only for Development
 http://localhost:8081/WeatherForecast
 ```
 
+
+👨‍💻 07. BookStore 7.0 (feature/107-BookStore7.0)
+------------
+
+> [!IMPORTANT]
+> docker pull mcr.microsoft.com/dotnet/aspnet:7.0 <br />
+> docker pull mcr.microsoft.com/dotnet/sdk:7.0 <br />
+
+- Open BookStore project
+- Create Dockerfile: Web, right clic > Add > Docker Support > Linux, OK
+
+Dockerfile:
+```
+FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
+WORKDIR /app
+EXPOSE 80
+
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+COPY ["src/BookStore.WebApi/BookStore.WebApi.csproj", "src/BookStore.WebApi/"]
+COPY ["src/BookStore.Domain/BookStore.Domain.csproj", "src/BookStore.Domain/"]
+COPY ["src/BookStore.Infrastructure/BookStore.Infrastructure.csproj", "src/BookStore.Infrastructure/"]
+RUN dotnet restore "./src/BookStore.WebApi/BookStore.WebApi.csproj"
+COPY . .
+WORKDIR "/src/src/BookStore.WebApi"
+RUN dotnet build "./BookStore.WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "./BookStore.WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "BookStore.WebApi.dll"]
+```
+
+Go to solution folder: `cd D:\...\07-BookStore`
+
+Create docker-compose.yml:
+```
+version: '3.8'
+
+networks:
+  backend:
+    name: bookstore-network
+
+services:
+  mssql:
+    build: 
+      context: ./scripts/sql
+    container_name: bookstore-db
+    ports:
+      - "1433:1433"  
+    environment:
+      SA_PASSWORD: "P@ssw0rd?"
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Express"
+    networks:
+      - backend
+
+  api:
+    build:
+      context: ./
+      dockerfile: ./src/BookStore.WebApi/Dockerfile
+    container_name: bookstore-webapi
+    depends_on:
+      - mssql
+    ports:
+      - 5001:80
+    environment:
+      ConnectionStrings__DbConnection: Server=mssql;Database=BookStore;User Id=SA;Password=P@ssw0rd?;Encrypt=False
+      ASPNETCORE_ENVIRONMENT: "Development"
+    networks:
+      - backend
+```
+
+In the solution folder: `cd D:\...\07-BookStore`
+
+```
+docker compose up -d --build
+```
+
+http://localhost:5001/swagger/index.html
+
+```
+docker-compose down
+docker-compose up --build
+```
+
+
+
+
 👨‍💻 7 - BookStore 8.0
 ------------
-- 
 
 > [!IMPORTANT]
 > V1 <br />

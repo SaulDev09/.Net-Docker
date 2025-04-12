@@ -1,7 +1,25 @@
 # .Net-Docker
 
-🚀 docker image:
-------------
+## Índice
+
+- [🚀 docker image](#-docker-image)
+- [🚀 docker container](#-docker-container)
+- [🚀 docker volume](#-docker-volume)
+- [🚀 docker network](#-docker-network)
+- [🚀 docker registry](#-docker-registry)
+- [🚀 Dockerfile](#-dockerfile)
+- [👨‍💻 01. .Net 3.0, ASP.NET - Web (feature/Net3)](#-01-net-30-aspnet---web-featurenet3)
+- [👨‍💻 02. .Net 3.0, ASP.NET - Web API (feature/02-Net3-Api)](#-02-net-30-aspnet---web-api-feature02-net3-api)
+- [👨‍💻 03. eShopOnWeb (feature/03-eShop)](#-03-eshoponweb-feature03-eshop)
+- [👨‍💻 04. Blazor 5.0 (feature/04-Blazor5.0)](#-04-blazor-50-feature04-blazor50)
+- [👨‍💻 05. WebAPI 6.0 (feature/05-API6.0)](#-05-webapi-60-feature05-api60)
+- [👨‍💻 06. WeatherAPI 7.0 (feature/06-API7.0)](#-06-weatherapi-70-feature06-api70)
+- [👨‍💻 07. BookStore 7.0 (feature/107-BookStore7.0)](#-07-bookstore-70-feature107-bookstore70)
+- [👨‍💻 08. BookStore 8.0 (feature/108-BookStore8.0)](#-08-bookstore-80-feature108-bookstore80)
+- [👨‍💻 09. BookStore 9.0 (feature/109-BookStore9.0)](#-09-bookstore-90-feature109-bookstore90)
+- [👨‍💻 10. BookStore 9.0 - docker-compose (feature/110-BookStore9.0-dockercompose)](#-10-bookStore-90---docker-compose-feature110-BookStore90-dockercompose)
+
+## 🚀 docker image:
 
 docker image build <br/>
 docker image history <br/>
@@ -13,8 +31,8 @@ docker image push <br/>
 docker image rm <br/>
 docker image tag <br/>
 
-🚀 docker container:
-------------
+## 🚀 docker container:
+
 docker container cp <br/>
 docker container create <br/>
 docker container exec <br/>
@@ -36,16 +54,16 @@ docker container stats <br/>
 docker container stop <br/>
 docker container top <br/>
 
-🚀 docker volume:
-------------
+## 🚀 docker volume:
+
 docker volume create <br/>
 docker volume inspect <br/>
 docker volume ls <br/>
 docker volume prune <br/>
 docker volume rm <br/>
 
-🚀 docker network:
-------------
+## 🚀 docker network:
+
 docker network connect <br/>
 docker network create <br/>
 docker network disconect <br/>
@@ -54,8 +72,8 @@ docker network ls <br/>
 docker network prune <br/>
 docker network rm <br/>
 
-🚀 docker registry:
-------------
+## 🚀 docker registry:
+
 docker registry events <br/>
 docker registry history <br/>
 docker registry info <br/>
@@ -65,8 +83,8 @@ docker registry ls <br/>
 docker registry rmi <br/>
 
 
-🚀 Dockerfile:
-------------
+## 🚀 Dockerfile:
+
 
 CMD <br/>
 RUN <br/>
@@ -80,8 +98,7 @@ ENTRYPOINT <br/>
 WORKDIR <br/>
 
 
-👨‍💻 01. .Net 3.0, ASP.NET - Web (feature/Net3)
-------------
+## 👨‍💻 01. .Net 3.0, ASP.NET - Web (feature/Net3)
 
 
 > [!IMPORTANT]
@@ -123,8 +140,7 @@ docker container run -d -p 8080:80 01saulwebnet3:6.0.0
 http://localhost:8080/
 http://localhost:8090/
 
-👨‍💻 02. .Net 3.0, ASP.NET - Web API (feature/02-Net3-Api)
-------------
+## 👨‍💻 02. .Net 3.0, ASP.NET - Web API (feature/02-Net3-Api)
 
 > [!IMPORTANT]
 > docker pull mcr.microsoft.com/dotnet/core/sdk:3.0 <br />
@@ -160,8 +176,7 @@ docker container run -d -p 8080:80 02saulwebapinet3:1.0.0
 http://localhost:8001/weatherforecast
 
 
-👨‍💻 03. eShopOnWeb (feature/03-eShop)
-------------
+## 👨‍💻 03. eShopOnWeb (feature/03-eShop)
 
 ### From Scratch:
 Project URL https://github.com/dotnet-architecture/eShopOnWeb/tree/netcore3.0
@@ -322,8 +337,8 @@ docker container run -d --name 03eshoponweb -p 9090:80 -e "Logging:LogLevel:Defa
 > `In the ConnectionStrings: Instead of \\ use only \`
 
 
-👨‍💻 04. Blazor 5.0 (feature/04-Blazor5.0)
-------------
+## 👨‍💻 04. Blazor 5.0 (feature/04-Blazor5.0)
+
 - New Proyect:
 Blazor Server App   
 .Net 5.0   
@@ -393,8 +408,7 @@ docker logs 04blazor5.0-app
 http://localhost:6001/
 
 
-👨‍💻 05. WebAPI 6.0 (feature/05-API6.0)
-------------
+## 👨‍💻 05. WebAPI 6.0 (feature/05-API6.0)
 
 > [!IMPORTANT]
 > docker pull mcr.microsoft.com/dotnet/aspnet:6.0 <br />
@@ -492,8 +506,8 @@ docker logs 05webapi6.0-app
 http://localhost:8080/swagger/index.html
 
 
-👨‍💻 06. WeatherAPI 7.0 (feature/06-API7.0)
-------------
+## 👨‍💻 06. WeatherAPI 7.0 (feature/06-API7.0)
+
 > [!IMPORTANT]
 > V1 <br />
 > docker pull mcr.microsoft.com/dotnet/aspnet:7.0 <br />
@@ -638,8 +652,7 @@ http://localhost:8081/WeatherForecast
 ```
 
 
-👨‍💻 07. BookStore 7.0 (feature/107-BookStore7.0)
-------------
+## 👨‍💻 07. BookStore 7.0 (feature/107-BookStore7.0)
 
 > [!IMPORTANT]
 > docker pull mcr.microsoft.com/dotnet/aspnet:7.0 <br />
@@ -728,8 +741,7 @@ docker-compose down
 docker-compose up --build
 ```
 
-👨‍💻 08. BookStore 8.0 (feature/108-BookStore8.0)
-------------
+## 👨‍💻 08. BookStore 8.0 (feature/108-BookStore8.0)
 
 > [!IMPORTANT]
 > docker pull mcr.microsoft.com/dotnet/aspnet:8.0 <br />
@@ -811,8 +823,7 @@ http://localhost:8082/swagger/index.html
 > `ConnectionStrings Instead of \\ use only \`
 
 
-👨‍💻 09. BookStore 8.0 (feature/109-BookStore9.0)
-------------
+## 👨‍💻 09. BookStore 9.0 (feature/109-BookStore9.0)
 
 > [!IMPORTANT]
 > docker pull mcr.microsoft.com/dotnet/aspnet:9.0 <br />
@@ -892,6 +903,84 @@ http://localhost:8082/swagger/index.html
 > [!IMPORTANT]
 > `ConnectionStrings Instead of \\ use only \` <br />
 > `ConnectionStrings Double "_": ConnectionStrings "_ _" DbConnection` <br />
+
+
+## 👨‍💻 10. BookStore 9.0 - docker-compose (feature/110-BookStore9.0-dockercompose)
+
+> [!IMPORTANT]
+> Continue with the previous image
+
+Go to solution folder: `cd D:\...\09-BookStore9.0-DockerCompose`
+
+Create docker-compose.yml:
+```
+version: '3.9'
+
+services:
+  web-api:
+    image: 09book-store:net9
+    container_name: 09book-store-compose
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_HTTP_PORTS: "80"
+      ConnectionStrings_DbConnection: "Server=192.168.0.44\\SQLEXPRESS;Database=BookStore;User id=DESA;Password=123456;TrustServerCertificate=True;"
+
+    ports:
+    - 8082:80
+```
+
+In the solution folder: `cd D:\...\09-BookStore9.0-DockerCompose`
+
+```
+docker compose up -d --build
+```
+
+http://localhost:8082/swagger/index.html
+
+```
+docker-compose down
+docker-compose up --build
+```
+
+> [!IMPORTANT]
+> Plan B: If there is no previous image, create it with the following line:
+
+```
+build:
+ context: .
+ dockerfile: src\BookStore.WebApi/Dockerfile
+```
+
+Create docker-compose.yml:
+```
+version: '3.9'
+
+services:
+  web-api:
+    image: 09book-store:net9
+    build:
+     context: .
+     dockerfile: src\BookStore.WebApi\Dockerfile    
+    container_name: 09book-store-compose
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_HTTP_PORTS: "80"
+      ConnectionStrings_DbConnection: "Server=192.168.0.44\\SQLEXPRESS;Database=BookStore;User id=DESA;Password=123456;TrustServerCertificate=True;"
+
+    ports:
+    - 8082:80
+```
+
+```
+docker-compose down
+docker-compose up --build
+```
+
+http://localhost:8082/swagger/index.html
+
+
 
 👨‍💻 8 - Docker Compose
 ------------

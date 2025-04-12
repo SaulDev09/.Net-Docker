@@ -811,6 +811,88 @@ http://localhost:8082/swagger/index.html
 > `ConnectionStrings Instead of \\ use only \`
 
 
+👨‍💻 09. BookStore 8.0 (feature/109-BookStore9.0)
+------------
+
+> [!IMPORTANT]
+> docker pull mcr.microsoft.com/dotnet/aspnet:9.0 <br />
+> docker pull mcr.microsoft.com/dotnet/sdk:9.0 <br />
+
+- Open BookStore project
+- Create Dockerfile: Web, right clic > Add > Docker Support > Linux, OK
+
+Dockerfile:
+```
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+USER $APP_UID
+WORKDIR /app
+EXPOSE 8080
+
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+COPY ["src/BookStore.WebApi/BookStore.WebApi.csproj", "src/BookStore.WebApi/"]
+COPY ["src/BookStore.Domain/BookStore.Domain.csproj", "src/BookStore.Domain/"]
+COPY ["src/BookStore.Infrastructure/BookStore.Infrastructure.csproj", "src/BookStore.Infrastructure/"]
+RUN dotnet restore "./src/BookStore.WebApi/BookStore.WebApi.csproj"
+COPY . .
+WORKDIR "/src/src/BookStore.WebApi"
+RUN dotnet build "./BookStore.WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "./BookStore.WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "BookStore.WebApi.dll"]
+```
+
+> [!IMPORTANT]
+> Run the Database image in the previous step or use the local database engine
+
+Go to solution folder: `cd D:\...\09-DockerCompose9.0`
+
+```
+docker build -t 09book-store:net9 -f .\src\BookStore.WebApi\Dockerfile .
+docker image ls
+docker container create --name 09book-store -p 8082:8080 -e ASPNETCORE_ENVIRONMENT=Development 09book-store:net9
+docker container start 09book-store
+docker start 09book-store
+docker container ls or docker ps
+docker inspect 09book-store
+```
+
+http://localhost:8082/swagger/index.html
+
+**Adding Environment variables**
+
+Changing Port, 80 instead of 8080
+```
+8082:80
+-e ASPNETCORE_HTTP_PORTS=80
+
+```
+
+Changing Connection String
+```
+-e ConnectionStrings__DbConnection="Server=192.168.0.44\SQLEXPRESS;Database=BookStore;User id=DESA;Password=123456;TrustServerCertificate=True;" 
+```
+
+```
+docker container rm -f 09book-store
+docker container create --name 09book-store -p 8082:80 -e ASPNETCORE_ENVIRONMENT=Development -e ASPNETCORE_HTTP_PORTS=80 -e ConnectionStrings__DbConnection="Server=192.168.0.44\SQLEXPRESS;Database=BookStore;User id=DESA;Password=123456;TrustServerCertificate=True;" 09book-store:net9
+docker start 09book-store
+docker logs 09book-store
+```
+
+http://localhost:8082/swagger/index.html
+
+> [!IMPORTANT]
+> `ConnectionStrings Instead of \\ use only \` <br />
+> `ConnectionStrings Double "_": ConnectionStrings "_ _" DbConnection` <br />
+
 👨‍💻 8 - Docker Compose
 ------------
 

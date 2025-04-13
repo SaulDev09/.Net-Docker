@@ -2,20 +2,20 @@ version: '3.8'
 
 networks:
   backend:
-    name: bookstore-network
+    name: 11bookstore-network
 
 services:
   mssql:
     build: 
       context: ./scripts/sql
-    container_name: bookstore-db
+    container_name: 11bookstore-db
     ports:
-      - "1433:1433"  
+      - "1450:1433"
     environment:
       SA_PASSWORD: "P@ssw0rd?"
       ACCEPT_EULA: "Y"
       MSSQL_PID: "Express"
-      MSSQL_CLIENT_ENCRYPTION: "Optional" #
+      MSSQL_CLIENT_ENCRYPTION: "Optional" #      
     networks:
       - backend
 
@@ -23,7 +23,7 @@ services:
     build:
       context: ./
       dockerfile: ./src/BookStore.WebApi/Dockerfile
-    container_name: bookstore-webapi
+    container_name: 11bookstore-webapi
     depends_on:
       - mssql
     ports:

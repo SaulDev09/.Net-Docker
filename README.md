@@ -18,6 +18,7 @@
 - [👨‍💻 08. BookStore 8.0 (feature/108-BookStore8.0)](#-08-bookstore-80-feature108-bookstore80)
 - [👨‍💻 09. BookStore 9.0 (feature/109-BookStore9.0)](#-09-bookstore-90-feature109-bookstore90)
 - [👨‍💻 10. BookStore 9.0 - docker-compose (feature/110-BookStore9.0-dockercompose)](#-10-bookStore-90---docker-compose-feature110-BookStore90-dockercompose)
+- [👨‍💻 11. BookStore 7.0 - docker-compose (feature/111-BookStore7.0-dockercompose)](#-11-bookstore-70---docker-compose-feature111-bookstore70-dockercompose)
 
 ## 🚀 docker image:
 
@@ -961,7 +962,7 @@ services:
     image: 09book-store:net9
     build:
      context: .
-     dockerfile: src\BookStore.WebApi\Dockerfile    
+     dockerfile: src\BookStore.WebApi\Dockerfile
     container_name: 09book-store-compose
 
     environment:
@@ -982,39 +983,30 @@ http://localhost:8082/swagger/index.html
 
 
 
-👨‍💻 8 - Docker Compose
-------------
+## 👨‍💻 11. BookStore 7.0 - docker-compose (feature/111-BookStore7.0-dockercompose)
 
-Commands
-```
-cd D:\.......\BookStore
-docker compose up -d --build
-http://localhost:5001/swagger/index.html
+Go to solution folder: `cd D:\...\10-BookStore7.0-DockerCompose`
 
-docker-compose down
-docker-compose up --build
-```
-
-docker-compose.yml
+Add docker-compose.yml
 ```
 version: '3.8'
 
 networks:
   backend:
-    name: bookstore-network
+    name: 11bookstore-network
 
 services:
   mssql:
     build: 
       context: ./scripts/sql
-    container_name: bookstore-db
+    container_name: 11bookstore-db
     ports:
-      - "1433:1433"  
+      - "1450:1433"
     environment:
       SA_PASSWORD: "P@ssw0rd?"
       ACCEPT_EULA: "Y"
       MSSQL_PID: "Express"
-      MSSQL_CLIENT_ENCRYPTION: "Optional" #
+      MSSQL_CLIENT_ENCRYPTION: "Optional" #      
     networks:
       - backend
 
@@ -1022,7 +1014,7 @@ services:
     build:
       context: ./
       dockerfile: ./src/BookStore.WebApi/Dockerfile
-    container_name: bookstore-webapi
+    container_name: 11bookstore-webapi
     depends_on:
       - mssql
     ports:
@@ -1032,4 +1024,24 @@ services:
       ASPNETCORE_ENVIRONMENT: "Development"
     networks:
       - backend
+```
+
+```
+docker compose up -d --build
+```
+http://localhost:5001/swagger/index.html
+
+```
+docker-compose down
+docker-compose up --build
+```
+
+> [!IMPORTANT]
+> To Deploy only Database
+
+Go to: `cd D:\...\10-BookStore7.0-DockerCompose\scripts\sql`
+
+```
+docker image build -t 11database-test:8.0.0 -f Dockerfile .
+docker container run --name 11database-test -p 1450:1433 -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=P@ssw0rd?" -e "MSSQL_PID=Express" -e "MSSQL_CLIENT_ENCRYPTION=Optional" 11database-test:8.0.0
 ```

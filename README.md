@@ -19,6 +19,8 @@
 - [👨‍💻 09. BookStore 9.0 (feature/109-BookStore9.0)](#-09-bookstore-90-feature109-bookstore90)
 - [👨‍💻 10. BookStore 9.0 - docker-compose (feature/110-BookStore9.0-dockercompose)](#-10-bookStore-90---docker-compose-feature110-BookStore90-dockercompose)
 - [👨‍💻 11. BookStore 7.0 - docker-compose (feature/111-BookStore7.0-dockercompose)](#-11-bookstore-70---docker-compose-feature111-bookstore70-dockercompose)
+- [👨‍💻 12. Install Minikube (feature/112-install-minikube)](#-12-install-minikube-feature112-install-minikube)
+
 
 ## 🚀 docker image:
 
@@ -1045,3 +1047,47 @@ Go to: `cd D:\...\10-BookStore7.0-DockerCompose\scripts\sql`
 docker image build -t 11database-test:8.0.0 -f Dockerfile .
 docker container run --name 11database-test -p 1450:1433 -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=P@ssw0rd?" -e "MSSQL_PID=Express" -e "MSSQL_CLIENT_ENCRYPTION=Optional" 11database-test:8.0.0
 ```
+
+
+## 👨‍💻 12. Install Minikube (feature/112-install-minikube)
+Docker desktop: Settings > General > Check "Use the WSL 2 based engine"
+
+```
+kubectl version --client
+```
+
+Search: install minikube on windows 11   
+Installation:   
+OS: Windows   
+Architecture: x86-64   
+Release type: Stable   
+Installer type: .exe download   
+> latest release   
+
+Or    
+Poweshell: `winget install Kubernetes.minikube`    
+
+Double Check Minikube in System environment    
+System Properties > Environment variables > Path (in System variables) > Modify >    
+
+```
+minikube start
+kubectl config get-clusters
+kubectl cluster-info
+kubectl get nodes
+kubectl get namespaces # 4
+kubectl config set-context --current --namespace=kube-system
+kubectl get deployments
+kubectl get pods # 7
+kubectl get services # 1
+kubectl logs etcd-minikube
+kubectl config get-contexts # 1
+kubectl config current-context # 1, minikube
+minikube dashboard
+minikube stop
+minikube pause
+minikube unpause
+minikube delete --all # delete image, containers, settings
+minikube delete --purge # delete all created files of minikube during installation
+```
+

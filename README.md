@@ -20,6 +20,8 @@
 - [👨‍💻 10. BookStore 9.0 - docker-compose (feature/110-BookStore9.0-dockercompose)](#-10-bookStore-90---docker-compose-feature110-BookStore90-dockercompose)
 - [👨‍💻 11. BookStore 7.0 - docker-compose (feature/111-BookStore7.0-dockercompose)](#-11-bookstore-70---docker-compose-feature111-bookstore70-dockercompose)
 - [👨‍💻 12. Install Minikube (feature/112-install-minikube)](#-12-install-minikube-feature112-install-minikube)
+- [👨‍💻 13. .Net 5.0 (feature/113-Net5.0-minikube)](#-13-net-50-feature113-net50-minikube)
+
 
 
 ## 🚀 docker image:
@@ -1091,3 +1093,198 @@ minikube delete --all # delete image, containers, settings
 minikube delete --purge # delete all created files of minikube during installation
 ```
 
+
+## 👨‍💻 13. .Net 5.0 (feature/113-Net5.0-minikube)
+
+- New Proyect:
+ASP.NET Core Web App (Model-View-Controller)   
+.Net 5.0   
+No HTTPS   
+
+Go to `Program.cs` and Enable Logs in CreateHostBuilder
+
+
+```
+.ConfigureLogging(logging => 
+{
+  logging.ClearProviders();
+  logging.AddConsole();
+})
+
+
+```
+
+- In "Green play button" Select "Web" (project name) to open console popup and run
+- Create Dockerfile: Web, right clic > Add > Docker Support > Linux, OK
+- "Green play button" Select "IIS Express" instead of "Docker"
+
+> [!IMPORTANT]
+> In Dockerfile:
+
+```
+# ADDED MANUALLY:
+ENV ASPNETCORE_URLS=http://*:80
+
+# ADDED MANUALLY:
+RUN ln -fs /usr/share/zoneinfo/America/Lima /etc/localtime
+RUN dpkg-reconfigure --frontend noninteractive tzdata
+```
+
+Like this:
+```
+FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
+WORKDIR /app
+EXPOSE 80
+# ADDED MANUALLY:
+ENV ASPNETCORE_URLS=http://*:80
+
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+COPY ["Web5-minikube/Web5-minikube.csproj", "Web5-minikube/"]
+RUN dotnet restore "./Web5-minikube/Web5-minikube.csproj"
+COPY . .
+WORKDIR "/src/Web5-minikube"
+RUN dotnet build "./Web5-minikube.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "./Web5-minikube.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+
+# ADDED MANUALLY:
+RUN ln -fs /usr/share/zoneinfo/America/Lima /etc/localtime
+RUN dpkg-reconfigure --frontend noninteractive tzdata
+
+ENTRYPOINT ["dotnet", "Web5-minikube.dll"]
+```
+
+Open VS Code > Open Project Folder > Install Extensions > YAML (for Red Hat)   
+
+Create file: deployment.yml   
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web5-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web5
+  template:
+    metadata:
+      labels:
+        app: web5
+    spec:
+      containers:
+      - name: web5-container
+        image: 13web5.0-minikube:1.0.0
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80
+```
+
+
+Create file: service.yml
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: web5-service
+spec:
+  selector:
+    app: web5
+  ports:
+    - port: 6001
+      targetPort: 80
+  type: LoadBalancer
+```
+
+**Creating Image in minikube**
+
+Go to solution folder: `cd D:\...\11-Web5.0-minikube\Web5-minikube`
+
+> [!CAUTION]
+> Using Git Bash the Path should use "/", instead of "\"
+
+
+```
+minikube start
+kubectl get nodes # 1
+eval $(minikube docker-env) # minikube as context
+docker info | grep Name # You should see "Name: minikube"
+docker image ls
+docker build -t 13web5.0-minikube:1.0.0 -f ./Web5-minikube/Dockerfile .
+docker image ls # you should see 13web5.0-minikube:1.0.0
+```
+
+**Creating Container in minikube**
+
+Go to solution folder: `cd D:\...\11-Web5.0-minikube\Web5-minikube`
+```
+minikube start
+eval $(minikube docker-env) # minikube as context
+docker info | grep Name # You should see "Name: minikube"
+docker image ls # you should see 13web5.0-minikube:1.0.0
+kubectl get namespaces
+kubectl create namespace 13web5-0-minikube # don't use dots (13web5.0-minikube)
+kubectl get namespaces # you should see 13web5-0-minikube
+kubectl config set-context --current --namespace=13web5-0-minikube # Context minikube modified
+kubectl apply -f Web5-minikube/deployment.yml # deployment created
+kubectl get deployments # 1
+kubectl get pods # 3 podS
+kubectl logs <POD_NAME>
+```
+
+**Creating host access**
+```
+kubectl apply -f Web5-minikube/service.yml
+kubectl get services # 1 with EXTERNAL-IP (tunnel) as Pending
+minikube tunnel # start tunnel
+```
+
+Open a new Git Bash
+```
+kubectl get services # 1 with EXTERNAL-IP assigned
+```
+
+**Changing port**
+
+Stop service: Ctrl + C
+
+```
+kubectl delete service <SERVICE-NAME>
+kubectl delete service web5-service
+```
+
+Go to `service.yml` > Edit `- port: 7001`
+
+```
+kubectl apply -f Web5-minikube/service.yml
+kubectl get services
+minikube tunnel # start tunnel
+```
+
+Open a new Git Bash
+```
+kubectl get services # 1 with EXTERNAL-IP assigned
+```
+
+http://localhost:7001/
+
+```
+minikube dashboard
+```
+
+A web page will open
+
+Select Namespace: 13web5-0-minikube

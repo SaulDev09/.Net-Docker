@@ -21,7 +21,7 @@
 - [👨‍💻 11. BookStore 7.0 - docker-compose (feature/111-BookStore7.0-dockercompose)](#-11-bookstore-70---docker-compose-feature111-bookstore70-dockercompose)
 - [👨‍💻 12. Install Minikube (feature/112-install-minikube)](#-12-install-minikube-feature112-install-minikube)
 - [👨‍💻 13. .Net 5.0 (feature/113-Net5.0-minikube)](#-13-net-50-feature113-net50-minikube)
-
+- [👨‍💻 14. BookStore 7.0 (feature/114-BookStore7.0-minikube)](#-14-bookstore-70-feature114-bookstore70-minikube)
 
 
 ## 🚀 docker image:
@@ -1288,3 +1288,134 @@ minikube dashboard
 A web page will open
 
 Select Namespace: 13web5-0-minikube
+
+
+## 👨‍💻 14. BookStore 7.0 (feature/114-BookStore7.0-minikube)
+
+
+- Open BookStore project   
+
+- Go to `D:\...\12-BookStore7.0-minikube\src\BookStore.WebApi\appsettings.json`   
+
+- Change ConnectionStrings values   
+
+- Create Dockerfile: Web, right clic > Add > Docker Support > Linux, OK
+
+Dockerfile:
+```
+FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
+WORKDIR /app
+EXPOSE 80
+
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+COPY ["src/BookStore.WebApi/BookStore.WebApi.csproj", "src/BookStore.WebApi/"]
+COPY ["src/BookStore.Domain/BookStore.Domain.csproj", "src/BookStore.Domain/"]
+COPY ["src/BookStore.Infrastructure/BookStore.Infrastructure.csproj", "src/BookStore.Infrastructure/"]
+RUN dotnet restore "./src/BookStore.WebApi/BookStore.WebApi.csproj"
+COPY . .
+WORKDIR "/src/src/BookStore.WebApi"
+RUN dotnet build "./BookStore.WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "./BookStore.WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "BookStore.WebApi.dll"]
+```
+
+Go to solution folder: `cd D:\...\12-BookStore7.0-minikube`
+
+```
+minikube start
+kubectl get pods -A
+eval $(minikube docker-env) # pushin images minikube | minikube as context, In Linux
+& minikube -p minikube docker-env --shell powershell | Invoke-Expression # pushin images minikube In Windows
+docker image ls
+docker image build -t 14bookstore7.0-minikube:1.0.0 -f src\BookStore.WebApi\Dockerfile .
+docker image ls
+```
+
+**Create PODs**
+
+Create file: deployment.yml in the Solution Folder
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: 14bookstore7-deployment
+spec:
+  selector:
+    matchLabels:
+      app: 14bookstore7
+  template:
+    metadata:
+      labels:
+        app: 14bookstore7
+    spec:
+      containers:
+      - name: 14bookstore7-container
+        image: 14bookstore7.0-minikube:1.0.0
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80
+```
+
+```
+minikube start
+kubectl get pods -A
+eval $(minikube docker-env) # pushin images minikube | minikube as context, In Linux
+& minikube -p minikube docker-env --shell powershell | Invoke-Expression # pushin images minikube In Windows
+docker image ls
+kubectl get namespaces
+kubectl create namespace 14bookstore7-0-minikube
+kubectl get namespaces
+kubectl apply -f deployment.yml -n 14bookstore7-0-minikube
+kubectl get all -n 14bookstore7-0-minikube
+kubectl get pods -n 14bookstore7-0-minikube
+kubectl get deployments -n 14bookstore7-0-minikube
+kubectl scale deployment/14bookstore7-deployment --replicas=5 -n 14bookstore7-0-minikube
+kubectl get pods -n 14bookstore7-0-minikube
+kubectl scale deploy 14bookstore7-deployment --replicas=2 -n 14bookstore7-0-minikube
+kubectl get pods -n 14bookstore7-0-minikube
+minikube dashboard
+```
+
+**Create Service**
+
+Create file: service.yml in the Solution Folder   
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: bookstore7-service14
+spec:
+  selector:
+    app: 14bookstore7
+  ports:
+    - port: 3030
+      targetPort: 80
+  type: LoadBalancer
+```
+
+```
+kubectl apply -f .\service.yml -n 14bookstore7-0-minikube
+kubectl get all -n 14bookstore7-0-minikube # with EXTERNAL-IP (tunnel) as Pending
+minikube tunnel # start tunnel
+kubectl get all -n 14bookstore7-0-minikube # with EXTERNAL-IP (tunnel) Assigned
+minikube dashboard
+```
+
+http://localhost:3030/api/books   
+http://localhost:3030/api/categories   
+
+

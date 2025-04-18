@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bookstore7-service14
+spec:
+  selector:
+    app: 14bookstore7
+  ports:
+    - port: 3030
+      targetPort: 80
+  type: LoadBalancer

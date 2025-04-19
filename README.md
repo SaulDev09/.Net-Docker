@@ -22,6 +22,10 @@
 - [👨‍💻 12. Install Minikube (feature/112-install-minikube)](#-12-install-minikube-feature112-install-minikube)
 - [👨‍💻 13. .Net 5.0 (feature/113-Net5.0-minikube)](#-13-net-50-feature113-net50-minikube)
 - [👨‍💻 14. BookStore 7.0 (feature/114-BookStore7.0-minikube)](#-14-bookstore-70-feature114-bookstore70-minikube)
+- [👨‍💻 15. Environment variables - Minikube (feature/115-env-var-minikube)](#-15-environment-variables---minikube-feature115-env-var-minikube)
+- [👨‍💻 16. ConfigMaps - Minikube (feature/116-configMaps-minikube)](#-16-configmaps---minikube-feature116-configmaps-minikube)
+- [👨‍💻 17. Secrets - Minikube (feature/117-secrets-minikube)](#-17-secrets---minikube-feature117-secrets-minikube)
+
 
 
 ## 🚀 docker image:
@@ -1568,3 +1572,87 @@ Go to Dashboard > Select Namespace 14bookstore7-0-minikube > Workloads | Pods > 
 
 http://localhost:3030/swagger/index.html   
 
+## 👨‍💻 17. Secrets - Minikube (feature/117-secrets-minikube)
+
+
+Create file: secret.yml in the Solution Folder   
+
+```
+apiVersion: v1
+kind: Secret
+metadata:
+  name: 14bookstore7-secret
+type: Opaque
+data:
+  connectionstring: U2VydmVyPTE5Mi4xNjguMC40NFxTUUxFWFBSRVNTO0RhdGFiYXNlPUJvb2tTdG9yZTtVc2VyIGlkPURFU0E7UGFzc3dvcmQ9MTIzNDU2O1RydXN0U2VydmVyQ2VydGlmaWNhdGU9VHJ1ZTs=
+```
+
+Stop the tunnel: Ctrl + C, then:   
+
+```
+kubectl apply -f secret.yml -n 14bookstore7-0-minikube # response: secret/14bookstore7-secret created
+minikube dashboard
+```
+
+Go to Dashboard > Select Namespace 14bookstore7-0-minikube > Config and Storage | Secrets
+
+
+**deployment**
+
+Edit deployment.yml
+```
+            - name: ConnectionStrings__DbConnection
+              valueFrom:
+                secretKeyRef:
+                  name: 14bookstore7-secret
+                  key: connectionstring
+```
+
+Like this:
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: 14bookstore7-deployment
+spec:
+  selector:
+    matchLabels:
+      app: 14bookstore7
+  template:
+    metadata:
+      labels:
+        app: 14bookstore7
+    spec:
+      containers:
+        - name: 14bookstore7-container
+          image: 14bookstore7.0-minikube:1.0.0
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 80
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: 14bookstore7-configmap
+                  key: environment
+            - name: ConnectionStrings__DbConnection
+              valueFrom:
+                secretKeyRef:
+                  name: 14bookstore7-secret
+                  key: connectionstring
+```
+
+
+```
+kubectl apply -f deployment.yml -n 14bookstore7-0-minikube # response: deployment.apps/14bookstore7-deployment configured
+minikube tunnel
+minikube dashboard
+```
+
+Go to Dashboard > Select Namespace 14bookstore7-0-minikube > Workloads | Pods > Select a Container > Containers: You'll see "Environment Variables" click "ConnectionStrings__DbConnection", you'll be redirected to the Secret page (Config and Storage | Secrets)
+
+http://localhost:3030/swagger/index.html   

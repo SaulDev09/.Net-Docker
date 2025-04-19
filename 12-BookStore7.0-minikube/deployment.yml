@@ -28,6 +28,6 @@ spec:
                   key: environment
             - name: ConnectionStrings__DbConnection
               valueFrom:
-                configMapKeyRef:
-                  name: 14bookstore7-configmap
+                secretKeyRef:
+                  name: 14bookstore7-secret
                   key: connectionstring

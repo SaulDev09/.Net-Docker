@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web5-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web5
+  template:
+    metadata:
+      labels:
+        app: web5
+    spec:
+      containers:
+      - name: web5-container
+        image: 13web5.0-minikube:1.0.0
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80

@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: 14bookstore7-deployment
+spec:
+  selector:
+    matchLabels:
+      app: 14bookstore7
+  template:
+    metadata:
+      labels:
+        app: 14bookstore7
+    spec:
+      containers:
+        - name: 14bookstore7-container
+          image: 14bookstore7.0-minikube:1.0.0
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 80
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: 14bookstore7-configmap
+                  key: environment
+            - name: ConnectionStrings__DbConnection
+              valueFrom:
+                secretKeyRef:
+                  name: 14bookstore7-secret
+                  key: connectionstring

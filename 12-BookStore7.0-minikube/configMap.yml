@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: 14bookstore7-configmap
+data:
+  environment: "Development"
+  connectionstring: "Server=192.168.0.44\\SQLEXPRESS;Database=BookStore;User id=DESA;Password=123456;TrustServerCertificate=True;"

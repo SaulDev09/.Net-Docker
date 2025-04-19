@@ -1,0 +1,17 @@
+version: '3.9'
+
+services:
+  web-api:
+    image: 09book-store:net9
+    build:
+     context: .
+     dockerfile: src\BookStore.WebApi\Dockerfile
+    container_name: 09book-store-compose
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_HTTP_PORTS: "80"
+      ConnectionStrings_DbConnection: "Server=192.168.0.44\\SQLEXPRESS;Database=BookStore;User id=DESA;Password=123456;TrustServerCertificate=True;"
+
+    ports:
+    - 8082:80

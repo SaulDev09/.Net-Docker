@@ -1,0 +1,35 @@
+version: '3.8'
+
+networks:
+  backend:
+    name: 11bookstore-network
+
+services:
+  mssql:
+    build: 
+      context: ./scripts/sql
+    container_name: 11bookstore-db
+    ports:
+      - "1450:1433"
+    environment:
+      SA_PASSWORD: "P@ssw0rd?"
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Express"
+      MSSQL_CLIENT_ENCRYPTION: "Optional" #      
+    networks:
+      - backend
+
+  api:
+    build:
+      context: ./
+      dockerfile: ./src/BookStore.WebApi/Dockerfile
+    container_name: 11bookstore-webapi
+    depends_on:
+      - mssql
+    ports:
+      - 5001:80
+    environment:
+      ConnectionStrings__DbConnection: Server=mssql;Database=BookStore;User Id=SA;Password=P@ssw0rd?;Encrypt=False;trustServerCertificate=true;
+      ASPNETCORE_ENVIRONMENT: "Development"
+    networks:
+      - backend

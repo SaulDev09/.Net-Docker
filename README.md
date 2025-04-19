@@ -1419,3 +1419,62 @@ http://localhost:3030/api/books
 http://localhost:3030/api/categories   
 
 
+## 👨‍💻 15. Environment variables - Minikube (feature/115-env-var-minikube)
+
+Open Deployment.yml   
+
+At the end add:   
+
+```
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: Development
+        - name: ConnectionStrings__DbConnection
+          value: Server=192.168.0.44\SQLEXPRESS;Database=BookStore;User id=DESA;Password=123456;TrustServerCertificate=True;
+```
+
+Like this:
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: 14bookstore7-deployment
+spec:
+  selector:
+    matchLabels:
+      app: 14bookstore7
+  template:
+    metadata:
+      labels:
+        app: 14bookstore7
+    spec:
+      containers:
+      - name: 14bookstore7-container
+        image: 14bookstore7.0-minikube:1.0.0
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: Development
+        - name: ConnectionStrings__DbConnection
+          value: Server=192.168.0.44\SQLEXPRESS;Database=BookStore;User id=DESA;Password=123456;TrustServerCertificate=True;
+```
+
+Stop the tunnel: Ctrl + C, then:
+
+```
+kubectl apply -f deployment.yml -n 14bookstore7-0-minikube
+kubectl get all -n 14bookstore7-0-minikube
+minikube tunnel
+minikube dashboard
+```
+
+Go to Dashboard > Select Namespace 14bookstore7-0-minikube > Workloads | Pods > Select a Container > Containers: You'll see "Environment Variables"
+
+http://localhost:3030/swagger/index.html
+

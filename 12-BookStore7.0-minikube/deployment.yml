@@ -1,4 +1,3 @@
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -13,16 +12,22 @@ spec:
         app: 14bookstore7
     spec:
       containers:
-      - name: 14bookstore7-container
-        image: 14bookstore7.0-minikube:1.0.0
-        resources:
-          limits:
-            memory: "128Mi"
-            cpu: "500m"
-        ports:
-        - containerPort: 80
-        env:
-        - name: ASPNETCORE_ENVIRONMENT
-          value: Development
-        - name: ConnectionStrings__DbConnection
-          value: Server=192.168.0.44\SQLEXPRESS;Database=BookStore;User id=DESA;Password=123456;TrustServerCertificate=True;
+        - name: 14bookstore7-container
+          image: 14bookstore7.0-minikube:1.0.0
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 80
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: 14bookstore7-configmap
+                  key: environment
+            - name: ConnectionStrings__DbConnection
+              valueFrom:
+                configMapKeyRef:
+                  name: 14bookstore7-configmap
+                  key: connectionstring

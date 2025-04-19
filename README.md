@@ -1478,3 +1478,93 @@ Go to Dashboard > Select Namespace 14bookstore7-0-minikube > Workloads | Pods > 
 
 http://localhost:3030/swagger/index.html
 
+
+## 👨‍💻 16. ConfigMaps - Minikube (feature/116-configMaps-minikube)
+
+
+Create file: configMap.yml in the Solution Folder
+
+```
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: 14bookstore7-configmap
+data:
+  environment: "Development"
+  connectionstring: "Server=192.168.0.44\\SQLEXPRESS;Database=BookStore;User id=DESA;Password=123456;TrustServerCertificate=True;"
+```
+
+Stop the tunnel: Ctrl + C, then:   
+
+```
+kubectl apply -f ConfigMap.yml -n 14bookstore7-0-minikube # response: configmap/14bookstore7-configmap created
+minikube dashboard
+```
+
+Go to Dashboard > Select Namespace 14bookstore7-0-minikube > Config and Storage | Config Maps
+
+**deployment**
+
+Edit deployment.yml
+```
+env:
+  - name: ASPNETCORE_ENVIRONMENT
+    valueFrom:
+      configMapKeyRef:
+        name: 14bookstore7-configmap
+        key: environment
+  - name: ConnectionStrings__DbConnection
+    valueFrom:
+      configMapKeyRef:
+        name: 14bookstore7-configmap
+        key: connectionstring
+```
+
+Like this:
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: 14bookstore7-deployment
+spec:
+  selector:
+    matchLabels:
+      app: 14bookstore7
+  template:
+    metadata:
+      labels:
+        app: 14bookstore7
+    spec:
+      containers:
+        - name: 14bookstore7-container
+          image: 14bookstore7.0-minikube:1.0.0
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 80
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: 14bookstore7-configmap
+                  key: environment
+            - name: ConnectionStrings__DbConnection
+              valueFrom:
+                configMapKeyRef:
+                  name: 14bookstore7-configmap
+                  key: connectionstring
+```
+
+```
+kubectl apply -f deployment.yml -n 14bookstore7-0-minikube # response: deployment.apps/14bookstore7-deployment configured
+minikube tunnel
+minikube dashboard
+```
+
+Go to Dashboard > Select Namespace 14bookstore7-0-minikube > Workloads | Pods > Select a Container > Containers: You'll see "Environment Variables" with an Eye   
+
+http://localhost:3030/swagger/index.html   
+
